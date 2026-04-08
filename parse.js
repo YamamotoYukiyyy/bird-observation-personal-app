@@ -10,13 +10,11 @@ export function normalizeDigits(text) {
   );
 }
 
-/** 区切りを半角スペースに統一し、連続空白を1つに */
+/** 区切りを半角スペースに統一し、連続空白を1つに（全角スペース・改行・タブ等も対象） */
 export function normalizeDelimiters(text) {
   return normalizeDigits(text)
-    .replace(/\r\n/g, "\n")
-    .replace(/\r/g, "\n")
-    .replace(/[、,\n\t]+/g, " ")
-    .replace(/ +/g, " ")
+    .replace(/[、,]/g, " ")
+    .replace(/\s+/gu, " ")
     .trim();
 }
 
@@ -67,6 +65,12 @@ export function parseObservations(raw) {
         continue;
       }
       items.push({ species, count });
+      continue;
+    }
+
+    // 次がカタカナなら「数省略→1」とみなし、同じループで次の種名を読む（例: スズメ ハト）
+    if (i < n && KATAKANA.test(s[i])) {
+      items.push({ species, count: 1 });
       continue;
     }
 

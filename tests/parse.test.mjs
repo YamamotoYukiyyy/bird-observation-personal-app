@@ -51,6 +51,21 @@ test("N-08", () => {
   );
 });
 
+test("数省略・単独（スズメのみ）", () => {
+  eq(parseObservations("スズメ"), [{ species: "スズメ", count: 1 }], []);
+});
+
+test("数省略・全角スペース区切り", () => {
+  eq(
+    parseObservations("スズメ\u3000ハト"),
+    [
+      { species: "スズメ", count: 1 },
+      { species: "ハト", count: 1 }
+    ],
+    []
+  );
+});
+
 test("E-01", () => {
   eq(parseObservations("すずめ3"), [], ["すずめ3"]);
 });
