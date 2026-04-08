@@ -60,6 +60,18 @@ function formatTime(iso) {
   }
 }
 
+/** datetime-local 用（端末ローカル日時） */
+function toDatetimeLocalValue(iso) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  const h = String(d.getHours()).padStart(2, "0");
+  const min = String(d.getMinutes()).padStart(2, "0");
+  return `${y}-${m}-${day}T${h}:${min}`;
+}
+
 function showToast(message, type = "success") {
   ui.toast.textContent = message;
   ui.toast.classList.remove("hidden", "success", "error");
@@ -189,9 +201,21 @@ function renderSummary() {
       .map((entry) => {
         const obs = observationsForEntry(entry.id);
         const obsLine = obs.map((o) => `${escapeHtml(o.species)}×${Number(o.count ?? 1)}`).join("、");
+        const dtVal = escapeHtml(toDatetimeLocalValue(entry.postedAt));
         return `
         <div class="entry-row" data-entry-id="${escapeHtml(entry.id)}">
           <div class="entry-meta">${escapeHtml(formatTime(entry.postedAt))}</div>
+          <div class="entry-datetime-edit">
+            <label class="datetime-label" for="dt-${escapeHtml(entry.id)}">日時を変更</label>
+            <input
+              type="datetime-local"
+              id="dt-${escapeHtml(entry.id)}"
+              class="entry-datetime-input"
+              value="${dtVal}"
+              autocomplete="off"
+            />
+            <button type="button" class="save-datetime-btn" data-id="${escapeHtml(entry.id)}">日時を保存</button>
+          </div>
           <div class="entry-obs">${obsLine || escapeHtml(entry.observationRaw)}</div>
           ${
             entry.note
@@ -234,6 +258,32 @@ function renderSummary() {
         renderSummary();
         showToast("削除しました。");
       }
+    });
+  });
+
+  ui.summaryList.querySelectorAll(".save-datetime-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-id");
+      const row = btn.closest(".entry-row");
+      const input = row?.querySelector(".entry-datetime-input");
+      if (!id || !input) return;
+      const v = input.value.trim();
+      if (!v) {
+        showToast("日時を入力してください。", "error");
+        return;
+      }
+      const next = new Date(v);
+      if (Number.isNaN(next.getTime())) {
+        showToast("日時の形式が不正です。", "error");
+        return;
+      }
+      const entry = state.entries.find((e) => e.id === id);
+      if (!entry) return;
+      entry.postedAt = next.toISOString();
+      entry.updatedAt = new Date().toISOString();
+      saveState(state);
+      renderSummary();
+      showToast("日時を更新しました。");
     });
   });
 }
