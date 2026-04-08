@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#2f855a" />
+    <title>野鳥メモ（個人）</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <h1>野鳥メモ（個人）</h1>
+      <p>カタカナの鳥名で観察を記録（この端末のブラウザに保存）</p>
+    </header>
+
+    <main class="app-main">
+      <nav class="tabs" role="tablist">
+        <button type="button" data-tab="post" class="tab active" role="tab" aria-selected="true">
+          投稿
+        </button>
+        <button type="button" data-tab="summary" class="tab" role="tab" aria-selected="false">
+          観察一覧
+        </button>
+        <button type="button" data-tab="ops" class="tab" role="tab" aria-selected="false">
+          運用
+        </button>
+      </nav>
+
+      <section id="post-panel" class="tab-panel active" role="tabpanel">
+        <form id="post-form" class="card">
+          <h2 id="post-form-title">新しい記録</h2>
+          <label for="observation-input">観察入力（鳥名はカタカナ）</label>
+          <textarea
+            id="observation-input"
+            rows="4"
+            maxlength="400"
+            placeholder="例: スズメ３、ハト7"
+            required
+          ></textarea>
+          <p class="muted">
+            区切りは「、」「,」、空白、改行。数省略時は1。全角数字も可。
+          </p>
+          <div class="chip-row">
+            <span class="chip-label">解析結果:</span>
+            <span id="parsed-summary-chip" class="chip">未解析</span>
+          </div>
+          <p id="parse-error" class="parse-error hidden" aria-live="polite"></p>
+          <label for="note">メモ（任意）</label>
+          <textarea id="note" rows="2" maxlength="280" placeholder="補足"></textarea>
+          <div class="post-actions">
+            <button id="submit-btn" type="submit" class="primary">保存する</button>
+            <button id="cancel-edit-btn" type="button" class="hidden">編集をやめる</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="summary-panel" class="tab-panel" role="tabpanel">
+        <div class="card">
+          <h2>観察一覧（日別）</h2>
+          <p class="muted">新しい日が上。同日は記録時刻が新しい順。</p>
+          <div id="summary-list" class="stack"></div>
+        </div>
+      </section>
+
+      <section id="ops-panel" class="tab-panel" role="tabpanel">
+        <div class="card stack">
+          <h2>データの扱い</h2>
+          <p class="muted">
+            記録はこのブラウザの
+            <strong>localStorage</strong>
+            にだけ保存されます。GitHub やサーバには送信されません。別ブラウザ・シークレット・キャッシュ削除では共有されません。
+          </p>
+          <p class="muted">バックアップは CSV 出力を推奨します。</p>
+        </div>
+        <div class="card settings-card">
+          <h3>CSV</h3>
+          <p class="muted">ヘッダ: observed_at,species,count,note（1行＝1観察・最大500行）</p>
+          <div class="settings-actions">
+            <button id="export-csv-btn" type="button">CSV出力</button>
+            <button id="import-csv-btn" type="button">CSV入力</button>
+          </div>
+          <input id="csv-file-input" type="file" accept=".csv,text/csv" class="hidden" />
+        </div>
+        <div class="card">
+          <h3>危険な操作</h3>
+          <button id="clear-all-btn" type="button" class="danger">すべての記録を削除</button>
+        </div>
+      </section>
+    </main>
+    <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

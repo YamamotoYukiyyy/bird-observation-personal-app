@@ -15,11 +15,19 @@ python3 -m http.server 8080
 
 ## GitHub Pages で公開する
 
-1. このフォルダをリポジトリの**ルート**（またはリポジトリ直下に `index.html` がある状態）に置く。
-2. GitHub リポジトリの **Settings → Pages** で、**Branch** を `main`（または既定ブランチ）、フォルダを **`/ (root)`** に設定して保存する。
-3. 数分後に `https://<あなたのユーザー名>.github.io/<リポジトリ名>/` が発行される（リポジトリ名によってURLが変わる）。
+**重要:** Pages の「root」は **GitHub 上のリポジトリの一番上のフォルダ**です。`index.html`・`app.js`・`parse.js`・`storage.js`・`styles.css`・`.nojekyll`（空でよい）・`tests/` を **すべてそのルートに置いた状態**で push してください。ルートに `README.md` しかなく、アプリ用ファイルが別フォルダだけにあると、サイトのトップは README の表示になります。
 
-**サブパス:** 上記のようにプロジェクトページでは、CSS/JS は `index.html` からの**相対パス**（`./styles.css`, `./app.js`）で読み込んでいます。ルート配信であれば追加設定は不要です。
+1. 上記ファイルをリポジトリの**ルート**に置く（`bird-personal/` サブフォルダの中だけに置かない）。
+2. **Settings → Pages** で **Branch** を `main`、フォルダを **`/ (root)`** にする。
+3. 数分待って `https://<ユーザー名>.github.io/<リポジトリ名>/` を開く。アプリが出れば `index.html` が効いています。
+
+**README だけ表示されるときのチェックリスト**
+
+- GitHub のコード画面で、リポジトリ**直下**に `index.html` があるか確認する。
+- 無ければ、手元の `bird-personal` の中身をルートにコピーして commit / push する。
+- 空ファイル `.nojekyll` をルートに置く（Jekyll 変換を無効化し、静的ファイルをそのまま配信しやすくする）。
+
+**サブパス:** CSS/JS は `index.html` からの相対パス（`./styles.css`, `./app.js`）です。ルート配信なら追加設定は不要です。
 
 ## テスト（Node.js）
 
@@ -41,4 +49,3 @@ node --test tests/parse.test.mjs
 
 - 別ブラウザ・プライベートモード・ストレージ削除でデータは共有されません。大切な記録は CSV でバックアップしてください。
 - リポジトリを公開すると**ソースコードは公開**されますが、観察データは GitHub 上には保存されません。
-# bird-observation-personal-app
