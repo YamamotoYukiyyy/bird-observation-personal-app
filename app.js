@@ -19,6 +19,8 @@ const ui = {
   parseError: document.getElementById("parse-error"),
   submitBtn: document.getElementById("submit-btn"),
   cancelEditBtn: document.getElementById("cancel-edit-btn"),
+  editDatetimeWrap: document.getElementById("edit-datetime-wrap"),
+  editPostedAt: document.getElementById("edit-posted-at"),
   summaryList: document.getElementById("summary-list"),
   exportCsvBtn: document.getElementById("export-csv-btn"),
   importCsvBtn: document.getElementById("import-csv-btn"),
@@ -142,6 +144,7 @@ function resetPostForm() {
   ui.postFormTitle.textContent = "新しい記録";
   ui.postForm.reset();
   ui.cancelEditBtn.classList.add("hidden");
+  ui.editDatetimeWrap.classList.add("hidden");
   updateParsePreview();
 }
 
@@ -151,6 +154,8 @@ function startEdit(entry) {
   ui.observationInput.value = entry.observationRaw;
   ui.note.value = entry.note || "";
   ui.cancelEditBtn.classList.remove("hidden");
+  ui.editDatetimeWrap.classList.remove("hidden");
+  ui.editPostedAt.value = toDatetimeLocalValue(entry.postedAt);
   setTab("post");
   updateParsePreview();
 }
@@ -201,21 +206,9 @@ function renderSummary() {
       .map((entry) => {
         const obs = observationsForEntry(entry.id);
         const obsLine = obs.map((o) => `${escapeHtml(o.species)}×${Number(o.count ?? 1)}`).join("、");
-        const dtVal = escapeHtml(toDatetimeLocalValue(entry.postedAt));
         return `
         <div class="entry-row" data-entry-id="${escapeHtml(entry.id)}">
           <div class="entry-meta">${escapeHtml(formatTime(entry.postedAt))}</div>
-          <div class="entry-datetime-edit">
-            <label class="datetime-label" for="dt-${escapeHtml(entry.id)}">日時を変更</label>
-            <input
-              type="datetime-local"
-              id="dt-${escapeHtml(entry.id)}"
-              class="entry-datetime-input"
-              value="${dtVal}"
-              autocomplete="off"
-            />
-            <button type="button" class="save-datetime-btn" data-id="${escapeHtml(entry.id)}">日時を保存</button>
-          </div>
           <div class="entry-obs">${obsLine || escapeHtml(entry.observationRaw)}</div>
           ${
             entry.note
@@ -258,32 +251,6 @@ function renderSummary() {
         renderSummary();
         showToast("削除しました。");
       }
-    });
-  });
-
-  ui.summaryList.querySelectorAll(".save-datetime-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const id = btn.getAttribute("data-id");
-      const row = btn.closest(".entry-row");
-      const input = row?.querySelector(".entry-datetime-input");
-      if (!id || !input) return;
-      const v = input.value.trim();
-      if (!v) {
-        showToast("日時を入力してください。", "error");
-        return;
-      }
-      const next = new Date(v);
-      if (Number.isNaN(next.getTime())) {
-        showToast("日時の形式が不正です。", "error");
-        return;
-      }
-      const entry = state.entries.find((e) => e.id === id);
-      if (!entry) return;
-      entry.postedAt = next.toISOString();
-      entry.updatedAt = new Date().toISOString();
-      saveState(state);
-      renderSummary();
-      showToast("日時を更新しました。");
     });
   });
 }
@@ -447,6 +414,17 @@ ui.postForm.addEventListener("submit", (e) => {
       resetPostForm();
       return;
     }
+    const dtRaw = ui.editPostedAt.value.trim();
+    if (!dtRaw) {
+      showToast("観察日時を入力してください。", "error");
+      return;
+    }
+    const nextPosted = new Date(dtRaw);
+    if (Number.isNaN(nextPosted.getTime())) {
+      showToast("観察日時の形式が不正です。", "error");
+      return;
+    }
+    entry.postedAt = nextPosted.toISOString();
     entry.observationRaw = raw;
     entry.note = note;
     entry.updatedAt = now;
@@ -482,6 +460,7 @@ ui.postForm.addEventListener("submit", (e) => {
     saveState(state);
     showToast("保存しました。");
     ui.postForm.reset();
+    ui.editDatetimeWrap.classList.add("hidden");
     updateParsePreview();
   }
   renderSummary();

@@ -46,6 +46,11 @@
           <p id="parse-error" class="parse-error hidden" aria-live="polite"></p>
           <label for="note">メモ（任意）</label>
           <textarea id="note" rows="2" maxlength="280" placeholder="補足"></textarea>
+          <div id="edit-datetime-wrap" class="edit-datetime-wrap hidden">
+            <label for="edit-posted-at">観察日時</label>
+            <p class="muted edit-datetime-hint">一覧の「編集」から開いたときだけ表示されます。</p>
+            <input type="datetime-local" id="edit-posted-at" autocomplete="off" />
+          </div>
           <div class="post-actions">
             <button id="submit-btn" type="submit" class="primary">保存する</button>
             <button id="cancel-edit-btn" type="button" class="hidden">編集をやめる</button>
@@ -56,7 +61,7 @@
       <section id="summary-panel" class="tab-panel" role="tabpanel">
         <div class="card">
           <h2>観察一覧（日別）</h2>
-          <p class="muted">新しい日が上。同日は記録時刻が新しい順。</p>
+          <p class="muted">新しい日が上。同日は記録時刻が新しい順。日時の変更は各記録の「編集」から行えます。</p>
           <div id="summary-list" class="stack"></div>
         </div>
       </section>
